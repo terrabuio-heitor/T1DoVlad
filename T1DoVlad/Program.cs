@@ -26,6 +26,7 @@ namespace projeto_denovo_tp_vladmir
             {
                 try
                 {
+                    Console.Clear();    
                     LojaSevico LJ = new LojaSevico();//puxo a classe
 
                     Console.WriteLine("Bem vindo ao sistema novo da loja: A Doninha Encantada ");
@@ -67,7 +68,11 @@ namespace projeto_denovo_tp_vladmir
                         case "Gerenciar":
                             Console.WriteLine("Vamos criar um item para a loja!");
                             Console.WriteLine("Ou deseja ver os que já existem?");
-
+                            var op2 = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                .Title("Selecione um item para vender:")
+                                .PageSize(20).AddChoices("Criar Item", "Ver Itens"
+                                ));
+                            break;
 
 
                             break;
@@ -75,19 +80,9 @@ namespace projeto_denovo_tp_vladmir
                             Console.WriteLine("Opção inválida.");
                             break;
                     }
-
-                    //var fruta = AnsiConsole.Prompt(
-                    //new SelectionPrompt<string>()
-                    //.Title("Qual sua [green]fruta[/] favorita?")
-                    //.PageSize(10)
-                    //.AddChoices(new[] {
-                    //    "Maçã", "Banana", "Laranja",
-                    //    "Morango", "Kiwi", "Abacaxi"
-                    //}));
-                    //AnsiConsole.MarkupLine($"Você selecionou: {fruta}[/]");
                     var sair = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
-                    .Title("\n\n\n\n\nDeseja [red]SAIR[/]?")
+                    .Title("\n\n\nDeseja [red]SAIR[/]?")
                     .PageSize(3)
                     .AddChoices(new[] {
                         "Sim", "Não"
@@ -105,3 +100,12 @@ namespace projeto_denovo_tp_vladmir
         }
     }
 }
+//var fruta = AnsiConsole.Prompt(
+//new SelectionPrompt<string>()
+//.Title("Qual sua [green]fruta[/] favorita?")
+//.PageSize(10)
+//.AddChoices(new[] {
+//    "Maçã", "Banana", "Laranja",
+//    "Morango", "Kiwi", "Abacaxi"
+//}));
+//AnsiConsole.MarkupLine($"Você selecionou: [green]{fruta}[/]");

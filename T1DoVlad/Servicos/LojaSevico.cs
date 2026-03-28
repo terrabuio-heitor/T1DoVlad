@@ -38,7 +38,7 @@ namespace T1DoVlad.Servicos
 
         public LojaSevico()
         {
-            //CarregarItensPadrao();
+            CarregarItensPadrao();
         }
 
         private void CarregarItensPadrao()
