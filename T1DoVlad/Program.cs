@@ -1,5 +1,4 @@
-﻿//using projeto_denovo_tp_vladmir.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +8,8 @@ using projeto_denovo_tp_vladmir.Models;
 using T1DoVlad.Servicos;
 
 
-using Spectre.Console;
-using System.ComponentModel;//extensão para melhorar o CLI, deixando ele mais bonito e interativo.
+using Spectre.Console;//extensão para melhorar o CLI, deixando ele mais bonito e interativo.
+
 
 //ja criei e configurei o banco de dados usando o SQLite no DatabaseConfig.cs.
 //optei por antes de inserir os dados na tabela do banco, fazer as funcoes de leitura e criacao de item de acordo com os parametros do professor.
@@ -26,10 +25,13 @@ namespace projeto_denovo_tp_vladmir
             {
                 try
                 {
-                    Console.Clear();    
-                    LojaSevico LJ = new LojaSevico();//puxo a classe
-
-                    Console.WriteLine("Bem vindo ao sistema novo da loja: A Doninha Encantada ");
+                    //LojaServico LJ = new LojaServico();//puxo a classe
+                    ExibirCabecalho("A Doninha Encantada", false);
+                    AnsiConsole.Write(new Panel("Bem vindo ao sistema novo da loja...")
+                        .Header("[bold yellow]Status[/]")
+                        .Border(BoxBorder.Rounded)
+                        .BorderStyle(new Style(Color.Blue))
+                    );
                     Thread.Sleep(500);
                     Console.WriteLine("O que deseja fazer? ");
                     Thread.Sleep(1000);
@@ -42,39 +44,46 @@ namespace projeto_denovo_tp_vladmir
                             .AddChoices(new[] {
                             "Vender", "Gerenciar"
                             }));
-
-
                     switch (op)
                     {
                         case "Vender":
+                            ExibirCabecalho("A Doninha Encantada", true);
                             Console.WriteLine("\nVamos vender um item!");
-                            Thread.Sleep(1000);
-                            Console.Clear();
-                            Console.WriteLine("Qual item você deseja vender?");
+                            //Thread.Sleep(1000);
+                            //Console.WriteLine("Qual item você deseja vender?");
 
-                            var nomesItens = LJ.ObterNomesDosItens();
+                            //var nomesItens = LJ.ObterNomesDosItens();
+                            int CORRIGIRcomPRIORIDADE = 0;
+                            
+                            //aqui tem que ser a função de obter os itens do banco, mas como não fiz ainda, deixei assim para testar o loading bar. 
+
+                            /*
+                            loadingBar(nomesItens.Count);
                             if (nomesItens.Count == 0)
                             {
                                 AnsiConsole.MarkupLine($"Você selecionou: [yellow]{op}[/]");
                                 Console.WriteLine("A loja está vazia! Não há nada para vender.");
                                 break;
                             }
+                            else
+                            {
+                                var lista = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                    .Title("Selecione um item para vender:")
+                                    .PageSize(20).AddChoices(nomesItens
+                                    ));
+                            }
 
-                            var lista = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                                .Title("Selecione um item para vender:")
-                                .PageSize(20).AddChoices(nomesItens
-                                ));
+                            */
+
                             break;
                         case "Gerenciar":
+                            ExibirCabecalho("A Doninha Encantada", true);
                             Console.WriteLine("Vamos criar um item para a loja!");
                             Console.WriteLine("Ou deseja ver os que já existem?");
                             var op2 = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                                .Title("Selecione um item para vender:")
-                                .PageSize(20).AddChoices("Criar Item", "Ver Itens"
+                                .Title("Selecione uma opção:")
+                                .PageSize(20).AddChoices("Criar Item", "Ver Itens", "Editar Item", "Apagar Item"
                                 ));
-                            break;
-
-
                             break;
                         default:
                             Console.WriteLine("Opção inválida.");
@@ -87,7 +96,7 @@ namespace projeto_denovo_tp_vladmir
                     .AddChoices(new[] {
                         "Sim", "Não"
                     }));
-                    if(sair == "Sim")
+                    if (sair == "Sim")
                     {
                         loop = false;
                     }
@@ -97,6 +106,21 @@ namespace projeto_denovo_tp_vladmir
                     Console.WriteLine(ex.Message);
                 }
             }
+        }
+        public static void ExibirCabecalho(string titulo, bool p)
+        {
+            Console.Clear();
+            if (p) { AnsiConsole.MarkupLine($"[bold blue]{titulo}[/]"); } else { AnsiConsole.Write(new FigletText(titulo).Justify(Justify.Left).Color(Spectre.Console.Color.Gold1)); }
+        }
+        static void loadingBar(int time)
+        {
+            AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .Start("Sincronizando arquivos...", ctx =>
+            {
+                Thread.Sleep(time * 250);
+                AnsiConsole.MarkupLine("Carregando produtos [green]OK[/]");
+            });
         }
     }
 }
