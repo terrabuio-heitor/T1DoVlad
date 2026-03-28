@@ -1,112 +1,81 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using projeto_denovo_tp_vladmir.Models;
 
 namespace T1DoVlad.Servicos
 {
     [Serializable]
-    internal class LojaSevico
+    internal class LojaServico
     {
-        public List<Arma> armas = new List<Arma>();
-        private List<Pocao> pocoes = new List<Pocao>();
-        //private 
+        private List<ItemRPG> itens = new List<ItemRPG>();
+        private List<string> historicoVendas = new List<string>();
+        private double caixa = 0;
 
-        static ItemRPG CriarItem()
-        {
-            string nome = LerNome();
-            double preco = LerPreco();
-            int estoque = LerEstoque();
-            string tipo = LerTipo();
-
-            if (tipo == "arma")
-            {
-                return new Arma(nome, preco, estoque);
-            }
-            else if (tipo == "pocao")
-            {
-                return new Pocao(nome, preco, estoque);
-            }
-            else
-            {
-                throw new Exception("Tipo inválido.");
-            }
-        }
-
-        public LojaSevico()
+        public LojaServico()
         {
             CarregarItensPadrao();
         }
 
         private void CarregarItensPadrao()
         {
-            // Adicionando Armas
-            armas.Add(new Arma("Espada de Ferro", 150.0, 5));
-            armas.Add(new Arma("Arco de Caçador", 120.0, 3));
-            armas.Add(new Arma("Cajado de Aprendiz", 200.0, 2));
+            itens.Add(new Arma("Espada de Ferro", 150, 5));
+            itens.Add(new Arma("Arco de Caçador", 120, 3));
+            itens.Add(new Arma("Cajado de Aprendiz", 200, 2));
 
-            // Adicionando Poções
-            pocoes.Add(new Pocao("Poção de Vida P", 50.0, 10));
-            pocoes.Add(new Pocao("Poção de Mana P", 60.0, 8));
-            pocoes.Add(new Pocao("Elixir da Força", 500.0, 1));
+            itens.Add(new Pocao("Poção de Vida", 50, 10));
+            itens.Add(new Pocao("Poção de Mana", 60, 8));
+            itens.Add(new Pocao("Elixir da Força", 500, 1));
         }
 
-        void AddInventario(ItemRPG item)
+        public void AdicionarItem(ItemRPG item)
         {
-            if (item is Arma arma)
+            itens.Add(item);
+        }
+
+        public void ListarEstoque()
+        {
+            var lista = itens
+                .Where(i => i.Estoque > 0)
+                .OrderByDescending(i => i.Preco);
+
+            foreach (var item in lista)
             {
-                armas.Add(arma);
+                Console.WriteLine(item.ExibirDetalhes());
             }
-            else if (item is Pocao pocao)
+        }
+
+        public void VenderItem(string nome, int quantidade)
+        {
+            var item = itens.FirstOrDefault(i => i.Nome.ToLower() == nome.ToLower());
+
+            if (item == null)
+                throw new Exception("Item não encontrado.");
+
+            if (quantidade > item.Estoque)
+                throw new Exception("Estoque insuficiente.");
+
+            double total = item.Preco * quantidade;
+
+            item.Estoque -= quantidade;
+            caixa += total;
+
+            historicoVendas.Add($"{item.Nome} - {quantidade}x = R$ {total}");
+
+            Console.WriteLine("Venda realizada com sucesso!");
+        }
+
+        public void RelatorioVendas()
+        {
+            foreach (var v in historicoVendas)
             {
-                pocoes.Add(pocao);
+                Console.WriteLine(v);
             }
         }
 
-        static string LerNome()
+        public void ExibirCaixa()
         {
-            Console.WriteLine("Qual o nome do item?");
-            return Console.ReadLine();
-        }
-
-        static double LerPreco()
-        {
-            Console.WriteLine("Qual o valor do item?");
-            return double.Parse(Console.ReadLine());
-        }
-
-        static int LerEstoque()
-        {
-            Console.WriteLine("Quanto em estoque?");
-            return int.Parse(Console.ReadLine());
-        }
-
-        static string LerTipo()
-        {
-            Console.WriteLine("Tipo do item? (arma/pocao)");
-            return Console.ReadLine().ToLower();
-        }
-
-        public List<string> ObterNomesDosItens()
-        {
-            // Pegamos os nomes da lista de armas
-            var nomesArmas = armas.Select(a => a.Nome);
-
-            // Pegamos os nomes da lista de poções
-            var nomesPocoes = pocoes.Select(p => p.Nome);
-
-            // Juntamos tudo em uma lista de strings e retornamos
-            return nomesArmas.Concat(nomesPocoes).ToList();
-        }
-        static void ExibirItem(ItemRPG item)
-        {
-            Console.WriteLine($"Nome: {item.Nome}");
-            Console.WriteLine($"Preço: {item.Preco}");
-            Console.WriteLine($"Estoque: {item.Estoque}");
-            Console.WriteLine($"Tipo: {item.Tipo}");
+            Console.WriteLine($"Total em caixa: R$ {caixa}");
         }
     }
 }
