@@ -123,7 +123,7 @@ namespace T1DoVlad.Servicos
                     Console.WriteLine("Ou deseja ver os que já existem?");
                     var op2 = AnsiConsole.Prompt(new SelectionPrompt<string>()
                         .Title("Selecione uma opção:")
-                        .PageSize(20).AddChoices("Criar Item", "Ver Itens", "Editar Item", "Apagar Item"
+                        .PageSize(20).AddChoices("Criar Item", "Ver Itens", "Editar Item", "Apagar Item","Voltar"
                         ));
                     switch (op2)
                     {
@@ -141,7 +141,7 @@ namespace T1DoVlad.Servicos
                     }
                     break;
                 default:
-                    Console.WriteLine("Opção inválida.");
+                    Console.WriteLine("Voltar.");
                     break;
             }
         }

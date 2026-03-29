@@ -64,6 +64,12 @@ namespace T1DoVlad.Servicos
             string json = JsonConvert.SerializeObject(itens, Formatting.Indented, settings);
             File.WriteAllText(caminhoEstoque, json);
         }
+        public void SalvarDadosVenda()
+        {
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            string json = JsonConvert.SerializeObject(historicoVendas, Formatting.Indented, settings);
+            File.WriteAllText(DadosVenda, json);
+        }
         public void CarregarDados()
         {//Ele testa se o arquivo existe, se existir ele lê o conteúdo e desserializa para a lista de itens, se não existir ele carrega os itens padrão e salva no arquivo para futuras execuções --Heitor
             if (File.Exists(caminhoEstoque))
@@ -124,6 +130,8 @@ namespace T1DoVlad.Servicos
             historicoVendas.Add($"{item.Nome} - {quantidade}x = R$ {total}");
             Console.WriteLine("Venda realizada com sucesso!");
             AnsiConsole.MarkupLine($"[green] Total da venda: R$ {total:F2} [/]");
+            SalvarDadosVenda();
+            SalvarDados();
             return (decimal)total;
 
         }
