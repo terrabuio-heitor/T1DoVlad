@@ -66,6 +66,7 @@
     <Compile Include="Modelos\Pocao.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Servicos\InterfaceUsuario.cs" />
     <Compile Include="Servicos\LojaSevico.cs" />
   </ItemGroup>
   <ItemGroup>

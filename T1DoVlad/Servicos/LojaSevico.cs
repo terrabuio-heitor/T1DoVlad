@@ -1,20 +1,30 @@
-﻿using System;
+﻿using projeto_denovo_tp_vladmir.Models;
+using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using projeto_denovo_tp_vladmir.Models;
 
 namespace T1DoVlad.Servicos
 {
+
     [Serializable]
     internal class LojaServico
     {
+        public decimal valorTotalVendas { get; private set; }//variável global para armazenar o valor total das vendas, para facilitar a exibição do caixa no final do dia --Heitor
         private List<ItemRPG> itens = new List<ItemRPG>();
         private List<string> historicoVendas = new List<string>();
         private double caixa = 0;
 
+        
         public LojaServico()
         {
             CarregarItensPadrao();
+        }
+
+        public List<string> ObterNomesDosItens()
+        {
+            // Usamos LINQ para pegar apenas o Nome de cada item e converter para uma Lista --Heitor
+            return itens.Select(i => i.Nome).ToList();
         }
 
         private void CarregarItensPadrao()
@@ -45,13 +55,12 @@ namespace T1DoVlad.Servicos
             }
         }
 
-        public void VenderItem(string nome, int quantidade)
+        public decimal VenderItem(string nome, int quantidade)
         {
             var item = itens.FirstOrDefault(i => i.Nome.ToLower() == nome.ToLower());
 
             if (item == null)
                 throw new Exception("Item não encontrado.");
-
             if (quantidade > item.Estoque)
                 throw new Exception("Estoque insuficiente.");
 
@@ -61,8 +70,10 @@ namespace T1DoVlad.Servicos
             caixa += total;
 
             historicoVendas.Add($"{item.Nome} - {quantidade}x = R$ {total}");
-
             Console.WriteLine("Venda realizada com sucesso!");
+            AnsiConsole.MarkupLine($"[green] Total da venda: R$ {total:F2} [/]");
+            return (decimal)total;
+
         }
 
         public void RelatorioVendas()
@@ -76,6 +87,47 @@ namespace T1DoVlad.Servicos
         public void ExibirCaixa()
         {
             Console.WriteLine($"Total em caixa: R$ {caixa}");
+        }
+
+        //Função para achar os Itens por Tipo, fazer o select melhor --Heitor
+        public void VerItensPorTipo(string tipo)
+        {
+            InterfaceUsuario UI = new InterfaceUsuario();
+            var itensFiltrados = itens.Where(i => i.GetType().Name.Equals(tipo, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (!itensFiltrados.Any())
+            {
+                Console.WriteLine($"Nenhum item do tipo '{tipo}' encontrado no estoque.");
+                return;
+            }
+
+            //Console.WriteLine($"--- Listando: {tipo.ToUpper()} ---");
+            //itensFiltrados.ForEach(item => Console.WriteLine(item.ExibirDetalhes()));
+
+            UI.loadingBar(itensFiltrados.Count);
+
+            var tabela = new Table();
+            tabela.Border(TableBorder.Rounded);
+            tabela.AddColumn("[yellow]Tipo[/]");
+            tabela.AddColumn("[blue]Nome[/]");
+            tabela.AddColumn("[green]Preço[/]");
+            tabela.AddColumn("[white]Estoque[/]");
+
+            foreach (var item in itensFiltrados)
+            {
+                tabela.AddRow(
+                    item.GetType().Name,
+                    item.Nome,
+                    $"R$ {item.Preco:F2}",
+                    item.Estoque.ToString()
+                );
+            }
+
+            AnsiConsole.Write(tabela);
+        }
+        public void totalVendasAdd(decimal valor)
+        {
+            valorTotalVendas += valor;
         }
     }
 }
