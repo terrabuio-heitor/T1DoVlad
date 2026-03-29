@@ -1,4 +1,30 @@
-﻿using projeto_denovo_tp_vladmir.Models;
+﻿/*
+Alunos
+[
+ Nome: Heitor Terrabuio
+ RA: 252407
+ E-mail: heitorterrabuio@gmail.com
+],
+[
+ Nome: Gustavo Campos
+ RA: RA do Aluno 2 --falta o RA do Gustavo
+ E-mail: E-mail do aluno 2 --falta o email do Gustavo
+]
+[
+ Nome: Luiz Henrique da Silva
+ RA: 256732
+ E-mail: luiz60828@gmail.com
+]
+[
+ Nome: Murilo Soares Bezerra
+ RA: 257013
+ E-mail: E-mail do aluno 2 --falta o email do Murilo
+]
+
+*/
+
+
+using projeto_denovo_tp_vladmir.Models;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -99,9 +125,11 @@ namespace T1DoVlad.Servicos
                         .Title("Selecione uma opção:")
                         .PageSize(20).AddChoices("Criar Item", "Ver Itens", "Editar Item", "Apagar Item"
                         ));
-                    switch (op2){
-                        
+                    switch (op2)
+                    {
+
                         case "Criar Item":
+                            CriarItem();
                             break;
                         case "Ver Itens":
                             VerItem();
@@ -145,5 +173,44 @@ namespace T1DoVlad.Servicos
                 LJ.VerItensPorTipo(tipoEscolhido);
             }
         }
+        //public void CriarItem()
+        //{
+        //    var tipoEscolhido = AnsiConsole.Prompt(
+        //    new SelectionPrompt<string>()
+        //    .Title("Qual tipo de item deseja ver?")
+        //    .AddChoices("Arma", "Pocao", "Voltar"));
+        //    if (tipoEscolhido != "Voltar")
+        //    {
+        //        LJ.AddNovoItem(tipoEscolhido, "", 10, 1);
+        //    }
+        //}
+        public void CriarItem()
+        {
+            ExibirCabecalho("Novo Item no Estoque", true);
+            var tipo = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Qual o [green]tipo[/] do item?")
+                    .AddChoices("Arma", "Pocao"));
+            var nome = AnsiConsole.Ask<string>("Qual o [blue]nome[/] do item?");
+            var preco = AnsiConsole.Prompt(
+                new TextPrompt<double>("Qual o [yellow]preço[/] unitário?")
+                    .ValidationErrorMessage("[red]Valor inválido![/] Digite um número positivo.")
+                    .Validate(p => p >= 0));
+            var qtd = AnsiConsole.Prompt(
+                new TextPrompt<int>("Quantidade inicial em [white]estoque[/]?")
+                    .DefaultValue(1)
+                    .Validate(q => q >= 0));
+            try
+            {
+                LJ.AddNovoItem(tipo, nome, preco, qtd);
+                AnsiConsole.MarkupLine($"\n[bold green]Sucesso![/] {tipo} '{nome}' adicionada ao estoque.");
+                LJ.SalvarDados();
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Erro ao salvar:[/] {ex.Message}");
+            }
+        }
+
     }
 }

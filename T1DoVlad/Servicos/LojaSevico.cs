@@ -1,8 +1,37 @@
-﻿using projeto_denovo_tp_vladmir.Models;
+﻿/*
+Alunos
+[
+ Nome: Heitor Terrabuio
+ RA: 252407
+ E-mail: heitorterrabuio@gmail.com
+],
+[
+ Nome: Gustavo Campos
+ RA: RA do Aluno 2
+ E-mail: E-mail do aluno 2
+]
+[
+ Nome: Luiz Henrique da Silva
+ RA: 256732
+ E-mail: luiz60828@gmail.com
+]
+[
+ Nome: Murilo Soares Bezerra
+ RA: 257013
+ E-mail: E-mail do aluno 2
+]
+
+*/
+
+
+using projeto_denovo_tp_vladmir.Models;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json; // Se puder usar NuGet, essa é a melhor
+using System.IO;
+
 
 namespace T1DoVlad.Servicos
 {
@@ -10,21 +39,44 @@ namespace T1DoVlad.Servicos
     [Serializable]
     internal class LojaServico
     {
+        private readonly string caminhoEstoque = "estoque.json";
+        private readonly string DadosVenda = "dadosVenda.json";
         public decimal valorTotalVendas { get; private set; }//variável global para armazenar o valor total das vendas, para facilitar a exibição do caixa no final do dia --Heitor
         private List<ItemRPG> itens = new List<ItemRPG>();
         private List<string> historicoVendas = new List<string>();
         private double caixa = 0;
 
-        
+
         public LojaServico()
         {
-            CarregarItensPadrao();
+            CarregarDados();
         }
 
         public List<string> ObterNomesDosItens()
         {
             // Usamos LINQ para pegar apenas o Nome de cada item e converter para uma Lista --Heitor
             return itens.Select(i => i.Nome).ToList();
+        }
+
+        public void SalvarDados()
+        { // Usei o Json.NET para serializar a lista de itens, incluindo o tipo de cada item, para facilitar a desserialização depois --Heitor
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            string json = JsonConvert.SerializeObject(itens, Formatting.Indented, settings);
+            File.WriteAllText(caminhoEstoque, json);
+        }
+        public void CarregarDados()
+        {//Ele testa se o arquivo existe, se existir ele lê o conteúdo e desserializa para a lista de itens, se não existir ele carrega os itens padrão e salva no arquivo para futuras execuções --Heitor
+            if (File.Exists(caminhoEstoque))
+            {
+                string json = File.ReadAllText(caminhoEstoque);
+                var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+                itens = JsonConvert.DeserializeObject<List<ItemRPG>>(json, settings) ?? new List<ItemRPG>();
+            }
+            else
+            {
+                CarregarItensPadrao();
+                SalvarDados();
+            }
         }
 
         private void CarregarItensPadrao()
@@ -128,6 +180,16 @@ namespace T1DoVlad.Servicos
         public void totalVendasAdd(decimal valor)
         {
             valorTotalVendas += valor;
+        }
+
+        public void AddNovoItem(string s, string n, double p,int q)
+        {
+            if(s.Equals("Arma", StringComparison.OrdinalIgnoreCase))
+                itens.Add(new Arma(n, p, q));
+            else if (s.Equals("Pocao", StringComparison.OrdinalIgnoreCase))
+                itens.Add(new Pocao(n, p, q));
+            else
+                throw new Exception("Tipo de item inválido. Use 'Arma' ou 'Pocao'.");
         }
     }
 }
