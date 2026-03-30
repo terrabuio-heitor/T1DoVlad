@@ -18,7 +18,7 @@ Alunos
 [
  Nome: Murilo Soares Bezerra
  RA: 257013
- E-mail: E-mail do aluno 2
+ E-mail: muri31102006@gmail.com
 ]
 
 */

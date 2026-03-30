@@ -18,7 +18,7 @@ Alunos
 [
  Nome: Murilo Soares Bezerra
  RA: 257013
- E-mail: E-mail do aluno 2
+ E-mail: muri31102006@gmail.com
 ]
 
 */
@@ -41,15 +41,15 @@ namespace T1DoVlad.Servicos
     {
         private readonly string caminhoEstoque = "estoque.json";
         private readonly string DadosVenda = "dadosVenda.json";
-        public decimal valorTotalVendas { get; private set; }//variável global para armazenar o valor total das vendas, para facilitar a exibição do caixa no final do dia --Heitor
         private List<ItemRPG> itens = new List<ItemRPG>();
-        private List<string> historicoVendas = new List<string>();
+        private List<Venda> historicoVendas = new List<Venda>(); //optei por transformar o historico vendas em um objeto para facilitar o uso correto das informacoes com uso do LINQ -- Murilo
         private double caixa = 0;
 
 
         public LojaServico()
         {
             CarregarDados();
+            CarregarDadosVenda();
         }
 
         public List<string> ObterNomesDosItens()
@@ -85,6 +85,17 @@ namespace T1DoVlad.Servicos
             }
         }
 
+        public void CarregarDadosVenda() {
+            if (File.Exists(DadosVenda)) {
+                var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+                string json = File.ReadAllText(DadosVenda);
+                historicoVendas = JsonConvert.DeserializeObject<List<Venda>>(json, settings) ?? new List<Venda>();
+            }
+            else {
+                historicoVendas = new List<Venda>();
+            }
+        }
+
         private void CarregarItensPadrao()
         {
             itens.Add(new Arma("Espada de Ferro", 150, 5));
@@ -101,16 +112,24 @@ namespace T1DoVlad.Servicos
             itens.Add(item);
         }
 
-        public void ListarEstoque()
-        {
-            var lista = itens
+        
+        //metodo a baixo lista os items e os organiza do mais caro pro mais barato, alem de mostrar apenas itens com ao menos 1 unidade em estoque --Murilo
+        public List<ItemRPG> GerarRelatorioEstoque() {
+            return itens
                 .Where(i => i.Estoque > 0)
-                .OrderByDescending(i => i.Preco);
+                .OrderByDescending(i => i.Preco)
+                .ToList();
+        }
 
-            foreach (var item in lista)
-            {
-                Console.WriteLine(item.ExibirDetalhes());
-            }
+        //metodo a baixo retorna as vendas ordenado pela data
+        public List<Venda> GerarRelatorioVendas() {
+            return historicoVendas
+                .OrderByDescending(v => v.DataVenda)
+                .ToList();
+        }
+        //metodo a baixo soma o total de vendas
+        public double GerarFechamentoCaixa() {
+            return historicoVendas.Sum(v => v.ValorTotal);
         }
 
         public decimal VenderItem(string nome, int quantidade)
@@ -127,7 +146,14 @@ namespace T1DoVlad.Servicos
             item.Estoque -= quantidade;
             caixa += total;
 
-            historicoVendas.Add($"{item.Nome} - {quantidade}x = R$ {total}");
+            //alterei o modo que o historicoVendas funciona pra criar o objeto Venda, para que toda vez que uma venda seja realizada, ele ja adicione pra lista com todos os dados --Murilo
+            historicoVendas.Add(new Venda {
+                NomeItem = item.Nome,
+                Quantidade = quantidade,
+                ValorUnitario = item.Preco,
+                ValorTotal = total,
+                DataVenda = DateTime.Now
+            });
             Console.WriteLine("Venda realizada com sucesso!");
             AnsiConsole.MarkupLine($"[green] Total da venda: R$ {total:F2} [/]");
             SalvarDadosVenda();
@@ -136,18 +162,29 @@ namespace T1DoVlad.Servicos
 
         }
 
-        public void RelatorioVendas()
-        {
-            foreach (var v in historicoVendas)
-            {
-                Console.WriteLine(v);
+
+        //agora esse metodo usa a funcao GerarRelatoriovendas(); e exibe as vendas formatadas --Murilo
+        public void RelatorioVendas() {
+            var vendas = GerarRelatorioVendas();
+
+            if (!vendas.Any()) {
+                Console.WriteLine("Nenhuma venda realizada.");
+                return;
+            }
+
+            foreach (var v in vendas) {
+                Console.WriteLine($"{v.NomeItem} - {v.Quantidade}x - unitário: R$ {v.ValorUnitario:F2} - total: R$ {v.ValorTotal:F2} - data: {v.DataVenda:dd/MM/yyyy HH:mm}");
             }
         }
-
-        public void ExibirCaixa()
-        {
-            Console.WriteLine($"Total em caixa: R$ {caixa}");
+        //agora o total é calculado automaticamente pelo histórico de vendas, sem depender da variável valorTotalVendas
+        public void ExibirCaixa() {
+            double total = GerarFechamentoCaixa();
+            Console.WriteLine($"Total em caixa: R$ {total:F2}");
         }
+
+        /*
+           removido valorTotalVendas e totalVendasAdd()
+           agora o total é calculado automaticamente via LINQ --Murilo */
 
         //Função para achar os Itens por Tipo, fazer o select melhor --Heitor
         public void VerItensPorTipo(string tipo)
@@ -185,10 +222,6 @@ namespace T1DoVlad.Servicos
 
             AnsiConsole.Write(tabela);
         }
-        public void totalVendasAdd(decimal valor)
-        {
-            valorTotalVendas += valor;
-        }
 
         public void AddNovoItem(string s, string n, double p,int q)
         {
@@ -199,5 +232,6 @@ namespace T1DoVlad.Servicos
             else
                 throw new Exception("Tipo de item inválido. Use 'Arma' ou 'Pocao'.");
         }
+
     }
 }

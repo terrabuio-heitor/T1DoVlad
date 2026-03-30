@@ -18,13 +18,13 @@ Alunos
 [
  Nome: Murilo Soares Bezerra
  RA: 257013 
- E-mail: E-mail do aluno 2 --falta o email do Murilo
+ E-mail: muri31102006@gmail.com
 ]
 
 */
 
 
-using Spectre.Console;//extensão para melhorar o CLI, deixando ele mais bonito e interativo. --Heitor
+using Spectre.Console; //extensão para melhorar o CLI, deixando ele mais bonito e interativo. --Heitor
 using System;
 using System.Threading;
 using T1DoVlad.Servicos;
@@ -53,13 +53,13 @@ namespace projeto_denovo_tp_vladmir
                     LJ.CarregarDados();//Carrego os dados do JSON--Heitor
                     UI.ExibirCabecalho("A Doninha Encantada", false);
                     AnsiConsole.Write(new Panel("Bem vindo ao sistema novo da loja...")
-                        .Header("[bold yellow]Status[/]")
-                        .Border(BoxBorder.Rounded)
-                        .BorderStyle(new Style(Color.Blue))
-                    );
+                                           .Header("[bold yellow]Status[/]")
+                                           .Border(BoxBorder.Rounded)
+                                           .BorderStyle(new Style(Color.Blue)) 
+                                       );
                     Thread.Sleep(500);
                     Console.WriteLine("O que deseja fazer? ");
-                    Console.WriteLine($"Deseja VENDER um item ou Deseja GERENCIAR os itens?");
+                    Console.WriteLine($"Deseja VENDER um item, GERENCIAR os itens, ou checar os RELATÓRIOS?");
                     Thread.Sleep(1000);
                     UI.ExibirMenu();
                     loop = UI.ExibirSair();

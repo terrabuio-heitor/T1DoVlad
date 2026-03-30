@@ -67,6 +67,7 @@
     <Compile Include="Modelos\Arma.cs" />
     <Compile Include="Modelos\ItemRPG.cs" />
     <Compile Include="Modelos\Pocao.cs" />
+    <Compile Include="Modelos\Venda.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servicos\InterfaceUsuario.cs" />

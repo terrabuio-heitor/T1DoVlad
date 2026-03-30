@@ -18,7 +18,7 @@ Alunos
 [
  Nome: Murilo Soares Bezerra
  RA: 257013
- E-mail: E-mail do aluno 2 --falta o email do Murilo
+ E-mail: muri31102006@gmail.com
 ]
 
 */
@@ -70,7 +70,7 @@ namespace T1DoVlad.Servicos
                     .Title("\nO que deseja fazer?")
                     .PageSize(10)
                     .AddChoices(new[] {
-                            "Vender", "Gerenciar"
+                            "Vender", "Gerenciar", "Relatórios"
                     }));
             switch (op)
             {
@@ -103,8 +103,7 @@ namespace T1DoVlad.Servicos
                         {
                             try
                             {
-                                decimal valor = LJ.VenderItem(vender, quantidade);
-                                LJ.totalVendasAdd(valor);
+                              LJ.VenderItem(vender, quantidade);
                             }
                             catch (Exception ex)
                             {
@@ -123,7 +122,7 @@ namespace T1DoVlad.Servicos
                     Console.WriteLine("Ou deseja ver os que já existem?");
                     var op2 = AnsiConsole.Prompt(new SelectionPrompt<string>()
                         .Title("Selecione uma opção:")
-                        .PageSize(20).AddChoices("Criar Item", "Ver Itens", "Editar Item", "Apagar Item","Voltar"
+                        .PageSize(20).AddChoices("Criar Item", "Editar Item", "Apagar Item","Voltar"
                         ));
                     switch (op2)
                     {
@@ -131,13 +130,36 @@ namespace T1DoVlad.Servicos
                         case "Criar Item":
                             CriarItem();
                             break;
-                        case "Ver Itens":
-                            VerItem();
-                            break;
                         case "Editar Item":
                             break;
                         case "Apagar Item":
                             break;
+                    }
+                    break;
+                case "Relatórios":
+                    ExibirCabecalho("A Doninha Encantada", true);
+
+                    Console.WriteLine("Vamos checar os relatórios!");
+                    var op3 = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                        .Title("Selecione uma opção:")
+                        .PageSize(20).AddChoices("Relatório Estoque", "Relatório de vendas", "Fechamento de caixa", "Voltar"
+                        ));
+                    switch(op3) {
+                        case "Relatório Estoque":
+                            MostrarRelatorioEstoque();
+                            break;
+
+                        case "Relatório de vendas":
+                            LJ.RelatorioVendas();
+                            break;
+
+                        case "Fechamento de caixa":
+                            LJ.ExibirCaixa();
+                            break;
+
+                        case "Voltar":
+
+                            return;
                     }
                     break;
                 default:
@@ -162,7 +184,11 @@ namespace T1DoVlad.Servicos
         }
         //Vou fazer o CRUD .--Heitor
 
-        public void VerItem()
+/*  optei por tirar a opcao VerItem(READ) do Gerenciar e deixar no relatorio de estoque faltam adicionar as opcoes de UPDDATE e DELETE de itens, 
+ *  tendo em vista que no proprio arquivo do professor pede pra deixar mostrar a visualizacao dos itens ordenadamente junto dos outros relatorios
+ *  usando o LINQ, no modulo 3. -- Murilo
+ *  
+ *  public void VerItem()
         {
             var tipoEscolhido = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -172,7 +198,8 @@ namespace T1DoVlad.Servicos
             {
                 LJ.VerItensPorTipo(tipoEscolhido);
             }
-        }
+        } */
+
         //public void CriarItem()
         //{
         //    var tipoEscolhido = AnsiConsole.Prompt(
@@ -210,6 +237,35 @@ namespace T1DoVlad.Servicos
             {
                 AnsiConsole.MarkupLine($"[red]Erro ao salvar:[/] {ex.Message}");
             }
+        }
+        // funcao de mostrar o relatorio de estoque chamando o metodo do LojaServico que ja organiza os itens por preco, como pedido no documento --Murilo
+        public void MostrarRelatorioEstoque() {
+            ExibirCabecalho("Relatório de Estoque", true);
+
+            var itens = LJ.GerarRelatorioEstoque();
+
+            if (!itens.Any()) {
+                AnsiConsole.MarkupLine("[red]Nenhum item com estoque disponível.[/]");
+                return;
+            }
+
+            var tabela = new Table();
+            tabela.Border(TableBorder.Rounded);
+            tabela.AddColumn("[yellow]Tipo[/]");
+            tabela.AddColumn("[blue]Nome[/]");
+            tabela.AddColumn("[green]Preço[/]");
+            tabela.AddColumn("[white]Estoque[/]");
+
+            foreach (var item in itens) {
+                tabela.AddRow(
+                    item.GetType().Name,
+                    item.Nome,
+                    $"R$ {item.Preco:F2}",
+                    item.Estoque.ToString()
+                );
+            }
+
+            AnsiConsole.Write(tabela);
         }
 
     }
