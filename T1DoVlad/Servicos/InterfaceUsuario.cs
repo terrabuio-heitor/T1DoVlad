@@ -7,8 +7,8 @@ Alunos
 ],
 [
  Nome: Gustavo Campos
- RA: RA do Aluno 2 --falta o RA do Gustavo
- E-mail: E-mail do aluno 2 --falta o email do Gustavo
+ RA: 241734
+ E-mail: gustavo.campos.ribeiro@hotmail.com
 ]
 [
  Nome: Luiz Henrique da Silva
@@ -96,14 +96,19 @@ namespace T1DoVlad.Servicos
                     {
                         var vender = AnsiConsole.Prompt(new SelectionPrompt<string>()
                             .Title("Selecione um item para vender:")
-                            .PageSize(20).AddChoices(nomesItens
+                            .PageSize(20).AddChoices(nomesItens.Append("Voltar")
                             ));
+                        if (vender == "Voltar")
+                        {
+                            Console.WriteLine("Venda cancelada.");
+                            break;
+                        }
                         int quantidade = AnsiConsole.Ask<int>("Entre com a [Gray]Quantidade[/]:");
                         if (quantidade > 0)
                         {
                             try
                             {
-                              LJ.VenderItem(vender, quantidade);
+                                LJ.VenderItem(vender, quantidade);
                             }
                             catch (Exception ex)
                             {
@@ -122,7 +127,7 @@ namespace T1DoVlad.Servicos
                     Console.WriteLine("Ou deseja ver os que já existem?");
                     var op2 = AnsiConsole.Prompt(new SelectionPrompt<string>()
                         .Title("Selecione uma opção:")
-                        .PageSize(20).AddChoices("Criar Item", "Editar Item", "Apagar Item","Voltar"
+                        .PageSize(20).AddChoices("Criar Item", "Editar Item", "Apagar Item", "Voltar"
                         ));
                     switch (op2)
                     {
@@ -131,8 +136,10 @@ namespace T1DoVlad.Servicos
                             CriarItem();
                             break;
                         case "Editar Item":
+                            EditarItem();
                             break;
                         case "Apagar Item":
+                            ApagarItem();
                             break;
                     }
                     break;
@@ -144,7 +151,8 @@ namespace T1DoVlad.Servicos
                         .Title("Selecione uma opção:")
                         .PageSize(20).AddChoices("Relatório Estoque", "Relatório de vendas", "Fechamento de caixa", "Voltar"
                         ));
-                    switch(op3) {
+                    switch (op3)
+                    {
                         case "Relatório Estoque":
                             MostrarRelatorioEstoque();
                             break;
@@ -184,21 +192,21 @@ namespace T1DoVlad.Servicos
         }
         //Vou fazer o CRUD .--Heitor
 
-/*  optei por tirar a opcao VerItem(READ) do Gerenciar e deixar no relatorio de estoque faltam adicionar as opcoes de UPDDATE e DELETE de itens, 
- *  tendo em vista que no proprio arquivo do professor pede pra deixar mostrar a visualizacao dos itens ordenadamente junto dos outros relatorios
- *  usando o LINQ, no modulo 3. -- Murilo
- *  
- *  public void VerItem()
-        {
-            var tipoEscolhido = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .Title("Qual tipo de item deseja ver?")
-            .AddChoices("Arma", "Pocao", "Voltar"));
-            if (tipoEscolhido != "Voltar")
-            {
-                LJ.VerItensPorTipo(tipoEscolhido);
-            }
-        } */
+        /*  optei por tirar a opcao VerItem(READ) do Gerenciar e deixar no relatorio de estoque faltam adicionar as opcoes de UPDDATE e DELETE de itens, 
+         *  tendo em vista que no proprio arquivo do professor pede pra deixar mostrar a visualizacao dos itens ordenadamente junto dos outros relatorios
+         *  usando o LINQ, no modulo 3. -- Murilo
+         *  
+         *  public void VerItem()
+                {
+                    var tipoEscolhido = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                    .Title("Qual tipo de item deseja ver?")
+                    .AddChoices("Arma", "Pocao", "Voltar"));
+                    if (tipoEscolhido != "Voltar")
+                    {
+                        LJ.VerItensPorTipo(tipoEscolhido);
+                    }
+                } */
 
         //public void CriarItem()
         //{
@@ -239,12 +247,14 @@ namespace T1DoVlad.Servicos
             }
         }
         // funcao de mostrar o relatorio de estoque chamando o metodo do LojaServico que ja organiza os itens por preco, como pedido no documento --Murilo
-        public void MostrarRelatorioEstoque() {
+        public void MostrarRelatorioEstoque()
+        {
             ExibirCabecalho("Relatório de Estoque", true);
 
             var itens = LJ.GerarRelatorioEstoque();
 
-            if (!itens.Any()) {
+            if (!itens.Any())
+            {
                 AnsiConsole.MarkupLine("[red]Nenhum item com estoque disponível.[/]");
                 return;
             }
@@ -256,7 +266,8 @@ namespace T1DoVlad.Servicos
             tabela.AddColumn("[green]Preço[/]");
             tabela.AddColumn("[white]Estoque[/]");
 
-            foreach (var item in itens) {
+            foreach (var item in itens)
+            {
                 tabela.AddRow(
                     item.GetType().Name,
                     item.Nome,
@@ -266,6 +277,73 @@ namespace T1DoVlad.Servicos
             }
 
             AnsiConsole.Write(tabela);
+        }
+
+        //Restante do CRUD
+
+        public void EditarItem()
+        {
+            ExibirCabecalho("Atualizar Suprimentos", true);
+            var nomes = LJ.ObterNomesDosItens();
+
+            if (!nomes.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]O estoque está vazio![/]");
+                return;
+            }
+
+            var itemSelecionado = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title("Selecione o item para [blue]modificar[/]:")
+                .AddChoices(nomes));
+
+            var acao = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title("O que deseja fazer?")
+                .AddChoices("Atualizar Preço", "Repor Estoque", "Cancelar"));
+
+            try
+            {
+                switch (acao)
+                {
+                    case "Atualizar Preço":
+                        double novoPreco = AnsiConsole.Ask<double>("Digite o [yellow]novo preço[/]:");
+                        LJ.AtualizarPreco(itemSelecionado, novoPreco); // Chama o serviço [cite: 47]
+                        AnsiConsole.MarkupLine("[green]Preço atualizado com sucesso![/]");
+                        break;
+
+                    case "Repor Estoque":
+                        int qtd = AnsiConsole.Ask<int>("Quantidade para [white]adicionar[/]:");
+                        LJ.ReporEstoque(itemSelecionado, qtd); // Requisito do Módulo 1 [cite: 29]
+                        AnsiConsole.MarkupLine("[green]Estoque abastecido![/]");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Erro:[/] {ex.Message}"); // Defesa com try-catch [cite: 45]
+            }
+        }
+
+        public void ApagarItem()
+        {
+            ExibirCabecalho("Remover do Inventário", true);
+            var nomes = LJ.ObterNomesDosItens();
+
+            var itemParaRemover = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title("[red]CUIDADO:[/] Qual item deseja remover permanentemente?")
+                .AddChoices(nomes));
+
+            if (AnsiConsole.Confirm($"Deseja mesmo excluir [bold]{itemParaRemover}[/]?"))
+            {
+                try
+                {
+                    LJ.RemoverItem(itemParaRemover);
+                    AnsiConsole.MarkupLine("[yellow]Item removido dos registros![/]");
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.MarkupLine($"[red]Erro ao remover:[/] {ex.Message}");
+                }
+            }
         }
 
     }

@@ -7,8 +7,8 @@ Alunos
 ],
 [
  Nome: Gustavo Campos
- RA: RA do Aluno 2
- E-mail: E-mail do aluno 2
+ RA: 241734
+ E-mail: gustavo.campos.ribeiro@hotmail.com
 ]
 [
  Nome: Luiz Henrique da Silva
@@ -85,13 +85,16 @@ namespace T1DoVlad.Servicos
             }
         }
 
-        public void CarregarDadosVenda() {
-            if (File.Exists(DadosVenda)) {
+        public void CarregarDadosVenda()
+        {
+            if (File.Exists(DadosVenda))
+            {
                 var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
                 string json = File.ReadAllText(DadosVenda);
                 historicoVendas = JsonConvert.DeserializeObject<List<Venda>>(json, settings) ?? new List<Venda>();
             }
-            else {
+            else
+            {
                 historicoVendas = new List<Venda>();
             }
         }
@@ -112,9 +115,10 @@ namespace T1DoVlad.Servicos
             itens.Add(item);
         }
 
-        
+
         //metodo a baixo lista os items e os organiza do mais caro pro mais barato, alem de mostrar apenas itens com ao menos 1 unidade em estoque --Murilo
-        public List<ItemRPG> GerarRelatorioEstoque() {
+        public List<ItemRPG> GerarRelatorioEstoque()
+        {
             return itens
                 .Where(i => i.Estoque > 0)
                 .OrderByDescending(i => i.Preco)
@@ -122,13 +126,15 @@ namespace T1DoVlad.Servicos
         }
 
         //metodo a baixo retorna as vendas ordenado pela data
-        public List<Venda> GerarRelatorioVendas() {
+        public List<Venda> GerarRelatorioVendas()
+        {
             return historicoVendas
                 .OrderByDescending(v => v.DataVenda)
                 .ToList();
         }
         //metodo a baixo soma o total de vendas
-        public double GerarFechamentoCaixa() {
+        public double GerarFechamentoCaixa()
+        {
             return historicoVendas.Sum(v => v.ValorTotal);
         }
 
@@ -147,7 +153,8 @@ namespace T1DoVlad.Servicos
             caixa += total;
 
             //alterei o modo que o historicoVendas funciona pra criar o objeto Venda, para que toda vez que uma venda seja realizada, ele ja adicione pra lista com todos os dados --Murilo
-            historicoVendas.Add(new Venda {
+            historicoVendas.Add(new Venda
+            {
                 NomeItem = item.Nome,
                 Quantidade = quantidade,
                 ValorUnitario = item.Preco,
@@ -164,20 +171,24 @@ namespace T1DoVlad.Servicos
 
 
         //agora esse metodo usa a funcao GerarRelatoriovendas(); e exibe as vendas formatadas --Murilo
-        public void RelatorioVendas() {
+        public void RelatorioVendas()
+        {
             var vendas = GerarRelatorioVendas();
 
-            if (!vendas.Any()) {
+            if (!vendas.Any())
+            {
                 Console.WriteLine("Nenhuma venda realizada.");
                 return;
             }
 
-            foreach (var v in vendas) {
+            foreach (var v in vendas)
+            {
                 Console.WriteLine($"{v.NomeItem} - {v.Quantidade}x - unitário: R$ {v.ValorUnitario:F2} - total: R$ {v.ValorTotal:F2} - data: {v.DataVenda:dd/MM/yyyy HH:mm}");
             }
         }
         //agora o total é calculado automaticamente pelo histórico de vendas, sem depender da variável valorTotalVendas
-        public void ExibirCaixa() {
+        public void ExibirCaixa()
+        {
             double total = GerarFechamentoCaixa();
             Console.WriteLine($"Total em caixa: R$ {total:F2}");
         }
@@ -223,14 +234,46 @@ namespace T1DoVlad.Servicos
             AnsiConsole.Write(tabela);
         }
 
-        public void AddNovoItem(string s, string n, double p,int q)
+        public void AddNovoItem(string s, string n, double p, int q)
         {
-            if(s.Equals("Arma", StringComparison.OrdinalIgnoreCase))
+            if (s.Equals("Arma", StringComparison.OrdinalIgnoreCase))
                 itens.Add(new Arma(n, p, q));
             else if (s.Equals("Pocao", StringComparison.OrdinalIgnoreCase))
                 itens.Add(new Pocao(n, p, q));
             else
                 throw new Exception("Tipo de item inválido. Use 'Arma' ou 'Pocao'.");
+        }
+
+        //restante do CRUD
+
+        // UPDATE: Repor Estoque
+        public void ReporEstoque(string nome, int quantidade)
+        {
+            var item = itens.FirstOrDefault(i => i.Nome.ToLower() == nome.ToLower());
+            if (item == null) throw new Exception("Item não encontrado!");
+
+            item.Estoque += quantidade; // A propriedade já tem validação contra negativos 
+            SalvarDados();
+        }
+
+        // UPDATE: Atualizar Preço
+        public void AtualizarPreco(string nome, double novoPreco)
+        {
+            var item = itens.FirstOrDefault(i => i.Nome.ToLower() == nome.ToLower());
+            if (item == null) throw new Exception("Item não encontrado!");
+
+            item.Preco = novoPreco;
+            SalvarDados();
+        }
+
+        // DELETE: Remover Item
+        public void RemoverItem(string nome)
+        {
+            var item = itens.FirstOrDefault(i => i.Nome.ToLower() == nome.ToLower());
+            if (item == null) throw new Exception("Item não encontrado!");
+
+            itens.Remove(item);
+            SalvarDados();
         }
 
     }

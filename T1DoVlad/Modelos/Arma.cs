@@ -7,8 +7,8 @@ Alunos
 ],
 [
  Nome: Gustavo Campos
- RA: RA do Aluno 2
- E-mail: E-mail do aluno 2
+ RA: 241734
+ E-mail: gustavo.campos.ribeiro@hotmail.com
 ]
 [
  Nome: Luiz Henrique da Silva
