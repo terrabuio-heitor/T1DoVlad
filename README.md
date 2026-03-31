@@ -4,7 +4,7 @@
 ![C#](https://img.shields.io/badge/C%23-7.2-purple)
 ![Professor](https://img.shields.io/badge/Professor-Vladmir%20Cruz-gold)
 
-Trabalho de conclusão do 1º Bimestre da disciplina de **Desenvolvimento de Sistemas** (ADS - FORTEC). O projeto consiste numa aplicação de consola interativa para modernizar a gestão de stock e vendas da lendária loja do Sr. Getúlio Setter.
+Trabalho de conclusão do 1º Bimestre da disciplina de **Aplicações para Desktop**. O projeto consiste numa aplicação de consola interativa para modernizar a gestão de stock e vendas da lendária loja do Sr. Getúlio Setter.
 
 ## 👥 Equipe (Os Desenvolvedores)
 * **Heitor Terrabuio** - RA: 252407
