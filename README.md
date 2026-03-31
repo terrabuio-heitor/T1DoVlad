@@ -8,7 +8,7 @@ Trabalho de conclusão do 1º Bimestre da disciplina de **Desenvolvimento de Sis
 
 ## 👥 Equipe (Os Desenvolvedores)
 * [cite_start]**Heitor Terrabuio** - RA: 252407 [cite: 59, 60]
-* [cite_start]**Gustavo Campos** - RA: [Inserir Aqui] [cite: 65, 66]
+* [cite_start]**Gustavo Campos** - RA: 241734
 * **Luiz Henrique da Silva** - RA: 256732
 * **Murilo Soares Bezerra** - RA: 257013
 
